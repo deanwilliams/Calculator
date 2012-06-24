@@ -23,12 +23,17 @@
         Getter for the operand stack.
         This will initialise the operand stack if it is nil
  */
-- (NSMutableArray *) operandStack
+- (NSMutableArray *) programStack
 {
     if (!_programStack) {
         _programStack = [[NSMutableArray alloc] init];
     }
     return _programStack;
+}
+
+- (id) program
+{
+    return [self.programStack copy];
 }
 
 /*!
@@ -39,8 +44,7 @@
  */
 - (void) pushOperand:(double)operand
 {
-    NSNumber *operandObject = [NSNumber numberWithDouble:operand];
-    [self.operandStack addObject:operandObject];
+    [self.programStack addObject:[NSNumber numberWithDouble:operand]];
 }
 
 /*!
@@ -59,6 +63,24 @@
     [self.programStack addObject:operation];
     return [CalculatorBrain runProgram:self.program];
     
+}
+
++ (NSString *) descriptionOfProgram:(id)program
+{
+    return @"Not yet implemented";
+}
+
++ (double) popOperandOffStack:(NSMutableArray *) stack
+{
+    double result = 0;
+    // Pop operand off the stack
+    // If operation, need to recursively evaluate
+    return result;
+}
+
++ (double) runProgram:(id)program
+{
+    return [self popOperandOffStack:[program mutableCopy]];
 }
 
 /*
@@ -106,7 +128,7 @@
  */
 - (void) clearOperands
 {
-    [self.operandStack removeAllObjects];
+    [self.programStack removeAllObjects];
 }
 
 @end
