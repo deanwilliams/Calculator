@@ -9,12 +9,12 @@
 #import "CalculatorBrain.h"
 
 @interface CalculatorBrain()
-@property (nonatomic, strong) NSMutableArray *operandStack;
+@property (nonatomic, strong) NSMutableArray *programStack;
 @end
 
 @implementation CalculatorBrain
 
-@synthesize operandStack = _operandStack;
+@synthesize programStack = _programStack;
 
 /*!
     @function operandStack
@@ -25,10 +25,10 @@
  */
 - (NSMutableArray *) operandStack
 {
-    if (!_operandStack) {
-        _operandStack = [[NSMutableArray alloc] init];
+    if (!_programStack) {
+        _programStack = [[NSMutableArray alloc] init];
     }
-    return _operandStack;
+    return _programStack;
 }
 
 /*!
@@ -44,20 +44,6 @@
 }
 
 /*!
-    @function popOperand
-    @abstract Pop and operand off the stack
-    @discussion
-        Pop an operand off the stack. If it's the last object of
-        the stack then completely clear it.
- */
-- (double) popOperand
-{
-    NSNumber *operandObject = [self.operandStack lastObject];
-    if (operandObject) [self.operandStack removeLastObject];
-    return [operandObject doubleValue];
-}
-
-/*!
     @function performOperation
     @abstract Perform a mathematical operation
     @discussion 
@@ -70,6 +56,12 @@
  */
 - (double) performOperation:(NSString *)operation
 {
+    [self.programStack addObject:operation];
+    return [CalculatorBrain runProgram:self.program];
+    
+}
+
+/*
     double result = 0;
     // Calculate result
     if ([operation isEqualToString:@"+"]) {
@@ -104,11 +96,7 @@
     } else if ([operation isEqualToString:@"+ / -"]) {
         result = [self popOperand] * -1;
     }
-    
-    [self pushOperand:result];
-    
-    return result;
-}
+ */
 
 /*!
     @function clearOPerands
