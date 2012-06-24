@@ -73,8 +73,48 @@
 + (double) popOperandOffStack:(NSMutableArray *) stack
 {
     double result = 0;
-    // Pop operand off the stack
-    // If operation, need to recursively evaluate
+    
+    id topOfStack = [stack lastObject];
+    if (topOfStack) [stack removeLastObject];
+    
+    if ([topOfStack isKindOfClass:[NSNumber class]]) {
+        return [topOfStack doubleValue];
+    } else if ([topOfStack isKindOfClass:[NSString class]]) {
+        NSString *operation = topOfStack;
+        if ([operation isEqualToString:@"+"]) {
+            // Sum
+            result = [self popOperandOffStack:stack] + [self popOperandOffStack:stack];
+        } else if ([operation isEqualToString:@"-"]) {
+            // Subtract
+            double subtrahend = [self popOperandOffStack:stack];
+            result = [self popOperandOffStack:stack] - subtrahend;
+        } else if ([operation isEqualToString:@"*"]) {
+            // Multiply
+            result = [self popOperandOffStack:stack] * [self popOperandOffStack:stack];
+        } else if ([operation isEqualToString:@"/"]) {
+            // Divide
+            double divisor = [self popOperandOffStack:stack];
+            if (divisor == 0) {
+                result = 0;
+            } else {
+                if (divisor) result = [self popOperandOffStack:stack] / divisor;
+            }
+        } else if ([operation isEqualToString:@"sin"]) {
+            // Sin
+            result = sin([self popOperandOffStack:stack]);
+        } else if ([operation isEqualToString:@"cos"]) {
+            // Cos
+            result = cos([self popOperandOffStack:stack]);
+        } else if ([operation isEqualToString:@"sqrt"]) {
+            // Square Root
+            result = sqrt([self popOperandOffStack:stack]);
+        } else if ([operation isEqualToString:@"π"]) {
+            result = M_PI;
+        } else if ([operation isEqualToString:@"+ / -"]) {
+            result = [self popOperandOffStack:stack] * -1;
+        }
+    }
+    
     return result;
 }
 
@@ -86,43 +126,6 @@
     }
     return [self popOperandOffStack:stack];
 }
-
-/*
-    double result = 0;
-    // Calculate result
-    if ([operation isEqualToString:@"+"]) {
-        // Sum
-        result = [self popOperand] + [self popOperand];
-    } else if ([operation isEqualToString:@"-"]) {
-        // Subtract
-        double subtrahend = [self popOperand];
-        result = [self popOperand] - subtrahend;
-    } else if ([operation isEqualToString:@"*"]) {
-        // Multiply
-        result = [self popOperand] * [self popOperand];
-    } else if ([operation isEqualToString:@"/"]) {
-        // Divide
-        double divisor = [self popOperand];
-        if (divisor == 0) {
-            result = 0;
-        } else {
-            if (divisor) result = [self popOperand] / divisor;
-        }
-    } else if ([operation isEqualToString:@"sin"]) {
-        // Sin
-        result = sin([self popOperand]);
-    } else if ([operation isEqualToString:@"cos"]) {
-        // Cos
-        result = cos([self popOperand]);
-    } else if ([operation isEqualToString:@"sqrt"]) {
-        // Square Root
-        result = sqrt([self popOperand]);
-    } else if ([operation isEqualToString:@"π"]) {
-        result = M_PI;
-    } else if ([operation isEqualToString:@"+ / -"]) {
-        result = [self popOperand] * -1;
-    }
- */
 
 /*!
     @function clearOPerands
