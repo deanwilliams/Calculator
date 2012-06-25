@@ -13,6 +13,7 @@
 
 @property (nonatomic) BOOL userIsInTheMiddleOfEnteringANumber;
 @property (nonatomic, strong) CalculatorBrain *brain;
+@property (nonatomic, strong) NSDictionary *testVariableValues;
 
 @end
 
@@ -20,6 +21,8 @@
 
 @synthesize display = _display;
 @synthesize history = _history;
+@synthesize variableValues = _variableValues;
+@synthesize testVariableValues = _testVariableValues;
 
 @synthesize userIsInTheMiddleOfEnteringANumber = _userIsInTheMiddleOfEnteringANumber;
 @synthesize brain = _brain;
@@ -34,6 +37,12 @@
 {
     if (!_brain) _brain = [[CalculatorBrain alloc] init];
     return _brain;
+}
+
+- (void) setTestVariableValues:(NSDictionary *)testVariableValues
+{
+    _testVariableValues = testVariableValues;
+    self.variableValues.text = [self.testVariableValues description];
 }
 
 /*!
@@ -62,6 +71,17 @@
         self.userIsInTheMiddleOfEnteringANumber = YES;
     }
     
+}
+
+- (IBAction)variablePressed:(UIButton *)sender 
+{
+    NSString *variable = [sender currentTitle];
+    if (self.userIsInTheMiddleOfEnteringANumber) {
+        [self enterPressed];
+    }
+    [self addToHistory:variable isOperation:YES];
+    [self.brain pushVariable:variable];
+    self.userIsInTheMiddleOfEnteringANumber = NO;
 }
 
 /*!
@@ -112,7 +132,7 @@
         }
     }
     [self addToHistory:operation isOperation:YES];
-    double result = [self.brain performOperation:operation];
+    double result = [self.brain performOperation:operation usingVariableValues:self.testVariableValues];
     self.display.text = [NSString stringWithFormat:@"%g", result];
 }
 
@@ -185,4 +205,21 @@
     }
 }
 
+- (IBAction)updateVariableValues:(UIButton *)sender {
+    NSString *text = [sender currentTitle];
+    NSDictionary *variableValues;
+    if ([text isEqualToString:@"Test 1"]) {
+        variableValues = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithDouble:5], @"x", [NSNumber numberWithDouble:4.8], @"y", [NSNumber numberWithDouble:0], @"foo", nil];
+    } else if ([text isEqualToString:@"Test 2"]) {
+        variableValues = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithDouble:2], @"x", [NSNumber numberWithDouble:0], @"y", [NSNumber numberWithDouble:10], @"foo", nil];
+    } else if ([text isEqualToString:@"Test 3"]) {
+        // Do nothing
+    }
+    self.testVariableValues = variableValues;
+}
+
+- (void)viewDidUnload {
+    [self setTestVariableValues:nil];
+    [super viewDidUnload];
+}
 @end

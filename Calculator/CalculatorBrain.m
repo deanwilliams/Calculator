@@ -17,11 +17,11 @@
 @synthesize programStack = _programStack;
 
 /*!
-    @function operandStack
-    @abstract Getter for the operand stack
-    @discussion
-        Getter for the operand stack.
-        This will initialise the operand stack if it is nil
+ @function operandStack
+ @abstract Getter for the operand stack
+ @discussion
+ Getter for the operand stack.
+ This will initialise the operand stack if it is nil
  */
 - (NSMutableArray *) programStack
 {
@@ -37,26 +37,31 @@
 }
 
 /*!
-    @function pushOperand
-    @abstract Push an operand onto the stack
-    @discussion
-        Push an operand onto the stack.
+ @function pushOperand
+ @abstract Push an operand onto the stack
+ @discussion
+ Push an operand onto the stack.
  */
 - (void) pushOperand:(double)operand
 {
     [self.programStack addObject:[NSNumber numberWithDouble:operand]];
 }
 
+- (void) pushVariable:(NSString *)variable
+{
+    [self.programStack addObject:variable];
+}
+
 /*!
-    @function performOperation
-    @abstract Perform a mathematical operation
-    @discussion 
-        Perform a mathematical operation. 
-        Supported operations are sum, subtract, divide,
-        sin, cos, square root and pi
+ @function performOperation
+ @abstract Perform a mathematical operation
+ @discussion 
+ Perform a mathematical operation. 
+ Supported operations are sum, subtract, divide,
+ sin, cos, square root and pi
  
-        If the operand would result in an invalid result (like divide by zero)
-        then zero is returned as the result
+ If the operand would result in an invalid result (like divide by zero)
+ then zero is returned as the result
  */
 - (double) performOperation:(NSString *)operation
 {
@@ -65,12 +70,19 @@
     
 }
 
+- (double) performOperation:(NSString *)operation usingVariableValues:(NSDictionary *)variableValues
+{
+    [self.programStack addObject:operation];
+    return [CalculatorBrain runProgram:self.program usingVariableValues:variableValues];
+    
+}
+
 + (NSString *) descriptionOfProgram:(id)program
 {
     return @"Not yet implemented";
 }
 
-+ (double) popOperandOffStack:(NSMutableArray *) stack
++ (double) popOperandOffStack:(NSMutableArray *) stack usingVariableValues:(NSDictionary *) variableValues
 {
     double result = 0;
     
@@ -83,35 +95,43 @@
         NSString *operation = topOfStack;
         if ([operation isEqualToString:@"+"]) {
             // Sum
-            result = [self popOperandOffStack:stack] + [self popOperandOffStack:stack];
+            result = [self popOperandOffStack:stack usingVariableValues:variableValues] + [self popOperandOffStack:stack usingVariableValues:variableValues];
         } else if ([operation isEqualToString:@"-"]) {
             // Subtract
-            double subtrahend = [self popOperandOffStack:stack];
-            result = [self popOperandOffStack:stack] - subtrahend;
+            double subtrahend = [self popOperandOffStack:stack usingVariableValues:variableValues];
+            result = [self popOperandOffStack:stack usingVariableValues:variableValues] - subtrahend;
         } else if ([operation isEqualToString:@"*"]) {
             // Multiply
-            result = [self popOperandOffStack:stack] * [self popOperandOffStack:stack];
+            result = [self popOperandOffStack:stack usingVariableValues:variableValues] * [self popOperandOffStack:stack usingVariableValues:variableValues];
         } else if ([operation isEqualToString:@"/"]) {
             // Divide
-            double divisor = [self popOperandOffStack:stack];
+            double divisor = [self popOperandOffStack:stack usingVariableValues:variableValues];
             if (divisor == 0) {
                 result = 0;
             } else {
-                if (divisor) result = [self popOperandOffStack:stack] / divisor;
+                if (divisor) result = [self popOperandOffStack:stack usingVariableValues:variableValues] / divisor;
             }
         } else if ([operation isEqualToString:@"sin"]) {
             // Sin
-            result = sin([self popOperandOffStack:stack]);
+            result = sin([self popOperandOffStack:stack usingVariableValues:variableValues]);
         } else if ([operation isEqualToString:@"cos"]) {
             // Cos
-            result = cos([self popOperandOffStack:stack]);
+            result = cos([self popOperandOffStack:stack usingVariableValues:variableValues] );
         } else if ([operation isEqualToString:@"sqrt"]) {
             // Square Root
-            result = sqrt([self popOperandOffStack:stack]);
+            result = sqrt([self popOperandOffStack:stack usingVariableValues:variableValues]);
         } else if ([operation isEqualToString:@"π"]) {
+            // Pi
             result = M_PI;
         } else if ([operation isEqualToString:@"+ / -"]) {
-            result = [self popOperandOffStack:stack] * -1;
+            // Negate the value
+            result = [self popOperandOffStack:stack usingVariableValues:variableValues] * -1;
+        } else {
+            // Variable value
+            NSNumber *variableValue = [variableValues objectForKey:operation];
+            if (!variableValue) variableValue = [NSNumber numberWithDouble:0];
+            [stack addObject:variableValue];
+            result = [self popOperandOffStack:stack usingVariableValues:variableValues];
         }
     }
     
@@ -124,14 +144,34 @@
     if ([program isKindOfClass:[NSArray class]]) {
         stack = [program mutableCopy];
     }
-    return [self popOperandOffStack:stack];
+    return [self popOperandOffStack:stack usingVariableValues:nil];
+}
+
++ (double) runProgram:(id)program usingVariableValues:(NSDictionary *) variableValues
+{
+    NSMutableArray *stack;
+    if ([program isKindOfClass:[NSArray class]]) {
+        stack = [program mutableCopy];
+    }
+    return [self popOperandOffStack:stack usingVariableValues:variableValues];
+}
+
++ (NSSet *) variablesUsedInProgram:(id) program
+{
+    NSArray *stack;
+    if ([program isKindOfClass:[NSArray class]]) {
+        stack = [program copy];
+    }
+    NSSet *variablesUsedInProgram = [NSSet setWithArray:stack];
+    // TODO Remove operations
+    return variablesUsedInProgram;
 }
 
 /*!
-    @function clearOPerands
-    @abstract Clear out the operand stack
-    @discussion Completely clear the operand stack
-    
+ @function clearOPerands
+ @abstract Clear out the operand stack
+ @discussion Completely clear the operand stack
+ 
  */
 - (void) clearOperands
 {
