@@ -107,19 +107,47 @@
     if ([topOfStack isKindOfClass:[NSNumber class]]) {
         [programFragment appendFormat:@"%g", [topOfStack doubleValue]];
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
-        NSString *operation = topOfStack;
-        if ([self isDoubleOperandOperation:operation]) {
-            [programFragment appendFormat:@"(%@ %@ %@)", [self descriptionOfTopOfStack:stack], operation, [self descriptionOfTopOfStack:stack]];
-        } else if ([self isSingleOperandOperation:operation]) {
-            [programFragment appendFormat:@"%@(%@)", operation, [self descriptionOfTopOfStack:stack]];
-        } else if ([ self isNoOperandOperation:operation]) {
-            [programFragment appendFormat:@"%@", operation];
-        } else if ([self isVariable:operation]) {
-            [programFragment appendFormat:@"%@", operation];
+        if ([self isDoubleOperandOperation:topOfStack]) {
+            NSString *secondOperation = [self descriptionOfTopOfStack:stack];
+            NSString *firstOperation = [self descriptionOfTopOfStack:stack];
+            
+            if ([topOfStack isEqualToString:@"+"] || 
+                [topOfStack isEqualToString:@"-"]) {
+                [programFragment appendFormat:@"(%@ %@ %@)", [self deBracket:firstOperation], topOfStack, [self deBracket:secondOperation]];
+            } else {
+                [programFragment appendFormat:@"%@ %@ %@", firstOperation, topOfStack, secondOperation];
+            }
+        } else if ([self isSingleOperandOperation:topOfStack]) {
+            [programFragment appendFormat:@"%@(%@)", topOfStack, [self deBracket:[self descriptionOfTopOfStack:stack]]];
+        } else if ([ self isNoOperandOperation:topOfStack]) {
+            [programFragment appendFormat:@"%@", topOfStack];
+        } else if ([self isVariable:topOfStack]) {
+            [programFragment appendFormat:@"%@", topOfStack];
         }
     }
     
     return programFragment;
+}
+
++ (NSString *)deBracket:(NSString *)expression {
+    
+    NSString *description = expression;
+    
+    // Check to see if there is a bracket at the start and end of the expression
+    // If so, then strip the description of these brackets and return.
+    if ([expression hasPrefix:@"("] && [expression hasSuffix:@")"]) {
+        description = [description substringFromIndex:1];
+        description = [description substringToIndex:[description length] - 1];
+    }  
+    
+    // Also need to do a final check, to cover the case where removing the brackets
+    // results in a + b) * (c + d. Have a look at the position of the brackets and
+    // if there is a ) before a (, then we need to revert back to expression
+    NSRange openBracket = [description rangeOfString:@"("];
+    NSRange closeBracket = [description rangeOfString:@")"];
+    
+    if (openBracket.location <= closeBracket.location) return description;
+    else return expression; 
 }
 
 + (BOOL) isDoubleOperandOperation:(NSString *) operation
