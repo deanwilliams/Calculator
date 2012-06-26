@@ -79,9 +79,9 @@
     if (self.userIsInTheMiddleOfEnteringANumber) {
         [self enterPressed];
     }
-    [self addToHistory:variable isOperation:YES];
     [self.brain pushVariable:variable];
     self.userIsInTheMiddleOfEnteringANumber = NO;
+    self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
 }
 
 /*!
@@ -131,9 +131,10 @@
             [self enterPressed];
         }
     }
-    [self addToHistory:operation isOperation:YES];
+    //[self addToHistory:operation isOperation:YES];
     double result = [self.brain performOperation:operation usingVariableValues:self.testVariableValues];
     self.display.text = [NSString stringWithFormat:@"%g", result];
+    self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
 }
 
 /*!
@@ -147,29 +148,8 @@
 {
     [self.brain pushOperand:[self.display.text doubleValue]];
     self.userIsInTheMiddleOfEnteringANumber = NO;
-    [self addToHistory:self.display.text isOperation:NO];
-}
-
-/*!
-    @function addToHistory
-    @abstract Add the variable to the history UILabel
-    @discussion
-        Add the provided variable to the history UI label.
- */
-- (void) addToHistory:(NSString *) digit isOperation:(BOOL) isOperation
-{
-    if ([self.history.text rangeOfString:@" ="].location != NSNotFound) {
-        self.history.text = [self.history.text substringToIndex:[self.history.text length] - 2];
-    }
-    if ([self.history.text length] == 0) {
-        self.history.text = [self.history.text stringByAppendingString:digit];
-    } else {
-        self.history.text = [self.history.text stringByAppendingString:@" "];
-        self.history.text = [self.history.text stringByAppendingString:digit];
-    }
-    if (isOperation) {
-        self.history.text = [self.history.text stringByAppendingString:@" ="];
-    }
+    //[self addToHistory:self.display.text isOperation:NO];
+    self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
 }
 
 /*!

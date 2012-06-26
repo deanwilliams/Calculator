@@ -79,7 +79,74 @@
 
 + (NSString *) descriptionOfProgram:(id)program
 {
-    return @"Not yet implemented";
+    NSMutableArray *stack;
+    NSString *strDesc = @"";
+    
+    if ([program isKindOfClass:[NSArray class]]) {
+        // Make a consumable, mutable copy:
+        stack = [program mutableCopy];
+    }
+    
+    while (stack.count) {
+        strDesc = [strDesc stringByAppendingString:[self descriptionOfTopOfStack:stack]];
+        if (stack.count) {
+            // More statements still on stack. We will loop again, but first, append comma separator:
+            strDesc = [strDesc stringByAppendingString:@", "];
+        }
+    }
+    
+    return strDesc;
+}
+
++ (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack {
+    NSMutableString *programFragment = [NSMutableString stringWithString:@""];
+    
+    id topOfStack = [stack lastObject];
+    if (topOfStack) [stack removeLastObject];
+    
+    if ([topOfStack isKindOfClass:[NSNumber class]]) {
+        [programFragment appendFormat:@"%g", [topOfStack doubleValue]];
+    } else if ([topOfStack isKindOfClass:[NSString class]]) {
+        NSString *operation = topOfStack;
+        if ([self isDoubleOperandOperation:operation]) {
+            [programFragment appendFormat:@"(%@ %@ %@)", [self descriptionOfTopOfStack:stack], operation, [self descriptionOfTopOfStack:stack]];
+        } else if ([self isSingleOperandOperation:operation]) {
+            [programFragment appendFormat:@"%@( %@ )", operation, [self descriptionOfTopOfStack:stack]];
+        } else if ([ self isNoOperandOperation:operation]) {
+            [programFragment appendFormat:@"%@", operation];
+        } else if ([self isVariable:operation]) {
+            [programFragment appendFormat:@"%@", operation];
+        }
+    }
+    
+    return programFragment;
+}
+
++ (BOOL) isDoubleOperandOperation:(NSString *) operation
+{
+    if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"-"] || [operation isEqualToString:@"*"] || [operation isEqualToString:@"/"]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
++ (BOOL) isSingleOperandOperation:(NSString *) operation
+{
+    if ([operation isEqualToString:@"sin"] || [operation isEqualToString:@"cos"] || [operation isEqualToString:@"sqrt"]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
++ (BOOL) isNoOperandOperation:(NSString *) operation
+{
+    if ([operation isEqualToString:@"π"]) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 + (double) popOperandOffStack:(NSMutableArray *) stack usingVariableValues:(NSDictionary *) variableValues
@@ -160,7 +227,7 @@
     }
     NSMutableSet *variablesUsed = [[NSMutableSet alloc] init];
     for (id term in stack) {
-        if ((![term isKindOfClass:[NSNumber class]] || [self isOperation:term])) {
+        if ((![term isKindOfClass:[NSNumber class]] && [self isVariable:term])) {
             [variablesUsed addObject:(NSString *)term];
         }
     }
@@ -171,12 +238,12 @@
     return returnSet;
 }
 
-+ (BOOL) isOperation:(NSString *) term
++ (BOOL) isVariable:(NSString *) term
 {
     if ([term isEqualToString:@"x"] || [term isEqualToString:@"y"] || [term isEqualToString:@"foo"]) {
-        return NO;
-    } else {
         return YES;
+    } else {
+        return NO;
     }
 }
 
