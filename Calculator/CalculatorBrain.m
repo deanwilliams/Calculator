@@ -17,10 +17,10 @@
 @synthesize programStack = _programStack;
 
 /*!
- @function operandStack
- @abstract Getter for the operand stack
+ @function programStack
+ @abstract Getter for the program stack
  @discussion
- Getter for the operand stack.
+ Getter for the program stack.
  This will initialise the operand stack if it is nil
  */
 - (NSMutableArray *) programStack
@@ -111,7 +111,7 @@
         if ([self isDoubleOperandOperation:operation]) {
             [programFragment appendFormat:@"(%@ %@ %@)", [self descriptionOfTopOfStack:stack], operation, [self descriptionOfTopOfStack:stack]];
         } else if ([self isSingleOperandOperation:operation]) {
-            [programFragment appendFormat:@"%@( %@ )", operation, [self descriptionOfTopOfStack:stack]];
+            [programFragment appendFormat:@"%@(%@)", operation, [self descriptionOfTopOfStack:stack]];
         } else if ([ self isNoOperandOperation:operation]) {
             [programFragment appendFormat:@"%@", operation];
         } else if ([self isVariable:operation]) {
