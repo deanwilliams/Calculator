@@ -174,9 +174,9 @@
 + (BOOL) isOperation:(NSString *) term
 {
     if ([term isEqualToString:@"x"] || [term isEqualToString:@"y"] || [term isEqualToString:@"foo"]) {
-        return YES;
-    } else {
         return NO;
+    } else {
+        return YES;
     }
 }
 
