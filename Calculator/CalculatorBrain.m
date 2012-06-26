@@ -140,11 +140,7 @@
 
 + (double) runProgram:(id)program
 {
-    NSMutableArray *stack;
-    if ([program isKindOfClass:[NSArray class]]) {
-        stack = [program mutableCopy];
-    }
-    return [self popOperandOffStack:stack usingVariableValues:nil];
+    return [self popOperandOffStack:program usingVariableValues:nil];
 }
 
 + (double) runProgram:(id)program usingVariableValues:(NSDictionary *) variableValues
@@ -162,9 +158,26 @@
     if ([program isKindOfClass:[NSArray class]]) {
         stack = [program copy];
     }
-    NSSet *variablesUsedInProgram = [NSSet setWithArray:stack];
-    // TODO Remove operations
-    return variablesUsedInProgram;
+    NSMutableSet *variablesUsed = [[NSMutableSet alloc] init];
+    for (id term in stack) {
+        if ((![term isKindOfClass:[NSNumber class]] || [self isOperation:term])) {
+            [variablesUsed addObject:(NSString *)term];
+        }
+    }
+    NSSet *returnSet = nil;
+    if (variablesUsed.count > 0) {
+        returnSet = [variablesUsed copy];
+    }
+    return returnSet;
+}
+
++ (BOOL) isOperation:(NSString *) term
+{
+    if ([term isEqualToString:@"x"] || [term isEqualToString:@"y"] || [term isEqualToString:@"foo"]) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 /*!
