@@ -50,7 +50,6 @@
 - (void) pushVariable:(NSString *)variable
 {
     [self.programStack addObject:variable];
-    NSLog(@"Variable %@ now on stack", variable);
 }
 
 /*!
@@ -242,9 +241,6 @@
         
         // See whether we think the item is a variable
         if ([obj isKindOfClass:[NSString class]] && [[self class] isVariable:obj]) {
-            if ([variableValues isKindOfClass:[NSDictionary class]]) {
-                NSLog(@"Variables Values is a dictionary");
-            }
             id value = [variableValues objectForKey:obj];         
             // If value is not an instance of NSNumber, set it to zero
             if (![value isKindOfClass:[NSNumber class]]) {

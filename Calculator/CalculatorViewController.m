@@ -86,7 +86,6 @@
     }
     [self.brain pushVariable:variable];
     [self synchronizeView];
-    NSLog(@"Pushing Variable %@", variable);
 }
 
 /*!
@@ -141,10 +140,8 @@
 }
 
 -(void)synchronizeView {
-    NSLog(@"Synchronising view");
     self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
-    NSLog(@"Description done");
-    
+
 	// Find the result by running the program passing in the test variable values
     self.display.text = [NSString stringWithFormat:@"%g", [CalculatorBrain runProgram:[self.brain program] usingVariableValues:self.testVariableValues]];
     
@@ -153,7 +150,7 @@
     for (NSString *key in [variablesUsed keyEnumerator]) {
         NSNumber *value = [variablesUsed objectForKey:key];
         if ([value isEqual:[NSNull null]]) value = [NSNumber numberWithDouble:0];
-        variableDescription = [variableDescription stringByAppendingFormat:@"%@ = %g", key, [value doubleValue]];
+        variableDescription = [variableDescription stringByAppendingFormat:@"%@ = %g  ", key, [value doubleValue]];
     }
     self.variableDisplay.text = variableDescription;
     
