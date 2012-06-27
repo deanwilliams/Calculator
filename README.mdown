@@ -1,0 +1,6 @@
+RPN Calculator for iPhone
+------------------------------------------
+
+A basic working RPN Calculator for iPhone (iOS 5).
+
+It's ugly as hell but it is my first attempt at Objective C

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF41D657159BC3480001656E /* README.mdown in Resources */ = {isa = PBXBuildFile; fileRef = DF41D656159BC3480001656E /* README.mdown */; };
 		DFA22BF3159285CC008DE15F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA22BF2159285CC008DE15F /* UIKit.framework */; };
 		DFA22BF5159285CC008DE15F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA22BF4159285CC008DE15F /* Foundation.framework */; };
 		DFA22BF7159285CC008DE15F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA22BF6159285CC008DE15F /* CoreGraphics.framework */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DF41D656159BC3480001656E /* README.mdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.mdown; sourceTree = "<group>"; };
 		DFA22BEE159285CC008DE15F /* Calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFA22BF2159285CC008DE15F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		DFA22BF4159285CC008DE15F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -53,6 +55,7 @@
 		DFA22BE3159285CC008DE15F = {
 			isa = PBXGroup;
 			children = (
+				DF41D656159BC3480001656E /* README.mdown */,
 				DFA22BF8159285CC008DE15F /* Calculator */,
 				DFA22BF1159285CC008DE15F /* Frameworks */,
 				DFA22BEF159285CC008DE15F /* Products */,
@@ -157,6 +160,7 @@
 			files = (
 				DFA22BFD159285CC008DE15F /* InfoPlist.strings in Resources */,
 				DFA22C06159285CD008DE15F /* MainStoryboard.storyboard in Resources */,
+				DF41D657159BC3480001656E /* README.mdown in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +286,7 @@
 				DFA22C0E159285CD008DE15F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
