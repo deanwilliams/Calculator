@@ -27,18 +27,14 @@
 @synthesize userIsInTheMiddleOfEnteringANumber = _userIsInTheMiddleOfEnteringANumber;
 @synthesize brain = _brain;
 
-/*!
-    @function brain
-    @abstract Getter method for this controller's model.
-    @discussion
-        Getter method for the this controller's model.
- */
+// Get the model
 - (CalculatorBrain *) brain
 {
     if (!_brain) _brain = [[CalculatorBrain alloc] init];
     return _brain;
 }
 
+// Get our variable values
 - (NSDictionary *) testVariableValues
 {
     if (!_testVariableValues) {
@@ -50,12 +46,7 @@
 	return _testVariableValues;
 }
 
-/*!
-    @function digitPressed
-    @abstract A digit button has been pressed
-    @discussion
-        A digit button has been pressed.
- */
+// A digit button has been pressed
 - (IBAction)digitPressed:(UIButton *)sender 
 {
     NSString *digit = [sender currentTitle];
@@ -78,6 +69,7 @@
     
 }
 
+// A variable button has been pressed
 - (IBAction)variablePressed:(UIButton *)sender 
 {
     NSString *variable = [sender currentTitle];
@@ -88,23 +80,13 @@
     [self synchronizeView];
 }
 
-/*!
-    @function appendToDisplay
-    @abstract Append the variable to the display text
-    @discussion
-        Append the variable to the display text.
- */
+// Append the string to the display
 - (void) appendToDisplay:(NSString *)digit
 {
     self.display.text = [self.display.text stringByAppendingString:digit];
 }
 
-/*!
-    @function alreadyContainsDecimalPoint
-    @abstract Check if the display text already contains a decimal point
-    @discussion
-        Check if the display string already contains decimal point.
- */
+// Check to see if the number being currently entered contains a decimal point
 - (BOOL)alreadyContainsDecimalPoint
 {
     if ([self.display.text rangeOfString:@"."].location == NSNotFound) {
@@ -114,14 +96,7 @@
     }
 }
 
-/*!
-    @function operationPressed
-    @abstract An operation button has been pressed
-    @discussion
-        An operation button has been pressed.
-        If the user has not pressed the enter button from entering the last
-        number then "enter" it for them.
- */
+// An operation button has been pressed
 - (IBAction)operationPressed:(UIButton *)sender 
 {
     NSString *operation = [sender currentTitle];
@@ -139,6 +114,7 @@
     [self synchronizeView];
 }
 
+// Synchronise all the things!
 -(void)synchronizeView {
     self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
 
@@ -158,6 +134,7 @@
 	self.userIsInTheMiddleOfEnteringANumber = NO;
 }
 
+// Get a dictionary of variables actaully used in the program
 - (NSDictionary *)programVariableValues {   
     
 	// Find the variables in the current program in the brain as an array
@@ -169,38 +146,21 @@
 	return [self.testVariableValues dictionaryWithValuesForKeys:variableArray];
 }
 
-/*!
-    @function enterPressed
-    @abstract The enter button has been pressed
-    @discussion
-        The enter button has been pressed so push the operand onto the stack,
-        and then add the operand to the stack and the display history
- */
+// Enter button has been pressed
 - (IBAction)enterPressed 
 {
     [self.brain pushOperand:[self.display.text doubleValue]];
     [self synchronizeView];
 }
 
-/*!
-    @function clear
-    @abstract The clear button has been pressed
-    @discussion
-        The clear button has been pressed so reset the displays
-        and call the model to clear the operand stack
- */
+// Clear out the program stack
 - (IBAction)clear:(UIButton *)sender 
 {
     [self.brain clearOperands];
     [self synchronizeView];	
 }
 
-/*!
-    @function backspacePressed
-    @abstract Backspace key pressed
-    @discussion
-        Backspace key has been pressed so remove the last digit entered
- */
+// Remove an incorrect digit
 - (IBAction)backspacePressed:(UIButton *)sender 
 {
     if (self.userIsInTheMiddleOfEnteringANumber) {
@@ -214,6 +174,7 @@
     }
 }
 
+// Update currently set variable values
 - (IBAction)updateVariableValues:(UIButton *)sender {
     NSString *text = [sender currentTitle];
     if ([text isEqualToString:@"Test 1"]) {

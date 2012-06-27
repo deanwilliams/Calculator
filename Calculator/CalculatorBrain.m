@@ -16,13 +16,7 @@
 
 @synthesize programStack = _programStack;
 
-/*!
- @function programStack
- @abstract Getter for the program stack
- @discussion
- Getter for the program stack.
- This will initialise the operand stack if it is nil
- */
+// Getter for the program stack. Lazily initialise if nil
 - (NSMutableArray *) programStack
 {
     if (!_programStack) {
@@ -31,49 +25,39 @@
     return _programStack;
 }
 
+// Public method to get a copy of the program stack
 - (id) program
 {
     return [self.programStack copy];
 }
 
-/*!
- @function pushOperand
- @abstract Push an operand onto the stack
- @discussion
- Push an operand onto the stack.
- */
+// Push an operand onto the stack
 - (void) pushOperand:(double)operand
 {
     [self.programStack addObject:[NSNumber numberWithDouble:operand]];
 }
 
+// Push a variable onto the stack
 - (void) pushVariable:(NSString *)variable
 {
     [self.programStack addObject:variable];
 }
 
-/*!
- @function performOperation
- @abstract Perform a mathematical operation
- @discussion 
- Perform a mathematical operation. 
- Supported operations are sum, subtract, divide,
- sin, cos, square root and pi
- 
- If the operand would result in an invalid result (like divide by zero)
- then zero is returned as the result
- */
+// Push an operation onto the stack then calculate the result
+// This method has been superceded
 - (double) performOperation:(NSString *)operation
 {
     [self.programStack addObject:operation];
     return [CalculatorBrain runProgram:self.program];
 }
 
+// Push an operation onto the stack
 - (void) pushOperation:(NSString *) operation
 {
     [self.programStack addObject:operation];
 }
 
+// Class method to get a nicely formatted string description of the program stack
 + (NSString *) descriptionOfProgram:(id)program
 {
     NSMutableArray *stack;
@@ -95,16 +79,20 @@
     return strDesc;
 }
 
+// Use recursion to build the string description of the program stack
 + (NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack {
     NSMutableString *programFragment = [NSMutableString stringWithString:@""];
     
+    // Take an object off the top of the stack
     id topOfStack = [stack lastObject];
-    if (topOfStack) [stack removeLastObject];
+    if (topOfStack) [stack removeLastObject]; // ... and consume it
     
     if ([topOfStack isKindOfClass:[NSNumber class]]) {
+        // If it's a number just return it
         [programFragment appendFormat:@"%g", [topOfStack doubleValue]];
     } else if ([topOfStack isKindOfClass:[NSString class]]) {
         if ([self isDoubleOperandOperation:topOfStack]) {
+            // +, -, * or /
             NSString *secondOperation = [self descriptionOfTopOfStack:stack];
             NSString *firstOperation = [self descriptionOfTopOfStack:stack];
             
@@ -115,8 +103,10 @@
                 [programFragment appendFormat:@"%@ %@ %@", firstOperation, topOfStack, secondOperation];
             }
         } else if ([self isSingleOperandOperation:topOfStack]) {
+            // Square root, sin or cos
             [programFragment appendFormat:@"%@(%@)", topOfStack, [self deBracket:[self descriptionOfTopOfStack:stack]]];
         } else if ([ self isNoOperandOperation:topOfStack]) {
+            // Pi
             [programFragment appendFormat:@"%@", topOfStack];
         } else if ([self isVariable:topOfStack]) {
             [programFragment appendFormat:@"%@", topOfStack];
@@ -126,6 +116,7 @@
     return programFragment;
 }
 
+// Attemot to remove some unnecesary parentheses
 + (NSString *)deBracket:(NSString *)expression {
     
     NSString *description = expression;
@@ -147,6 +138,7 @@
     else return expression; 
 }
 
+// Is the string a double operand operation?
 + (BOOL) isDoubleOperandOperation:(NSString *) operation
 {
     if ([operation isEqualToString:@"+"] || [operation isEqualToString:@"-"] || [operation isEqualToString:@"*"] || [operation isEqualToString:@"/"]) {
@@ -156,6 +148,7 @@
     }
 }
 
+// Is the string a single operand operation?
 + (BOOL) isSingleOperandOperation:(NSString *) operation
 {
     if ([operation isEqualToString:@"sin"] || [operation isEqualToString:@"cos"] || [operation isEqualToString:@"sqrt"]) {
@@ -165,6 +158,7 @@
     }
 }
 
+// Is the string a no operand operation?
 + (BOOL) isNoOperandOperation:(NSString *) operation
 {
     if ([operation isEqualToString:@"π"]) {
@@ -174,6 +168,7 @@
     }
 }
 
+// Use recursion to work through the stack abd calculate the result
 + (double) popOperandOffStack:(NSMutableArray *) stack
 {
     double result = 0;
@@ -224,11 +219,13 @@
     return result;
 }
 
+// Superceded method. Call the new method with nil values for the variables dictionary
 + (double) runProgram:(id)program
 {
     return [self runProgram:program usingVariableValues:nil];
 }
 
+// Run the program and calculate the result
 + (double) runProgram:(id)program usingVariableValues:(NSDictionary *) variableValues
 {
     NSMutableArray *stack;
@@ -253,6 +250,7 @@
     return [self popOperandOffStack:stack];
 }
 
+// Calculate a set of variables used within the program stack
 + (NSSet *) variablesUsedInProgram:(id) program
 {
     NSArray *stack;
@@ -272,6 +270,7 @@
     return returnSet;
 }
 
+// Is the string a variable?
 + (BOOL) isVariable:(NSString *) term
 {
     if ([term isEqualToString:@"x"] || [term isEqualToString:@"y"] || [term isEqualToString:@"foo"]) {
@@ -281,12 +280,7 @@
     }
 }
 
-/*!
- @function clearOPerands
- @abstract Clear out the operand stack
- @discussion Completely clear the operand stack
- 
- */
+// Clear the program stack
 - (void) clearOperands
 {
     [self.programStack removeAllObjects];
