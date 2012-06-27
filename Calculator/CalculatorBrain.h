@@ -12,8 +12,8 @@
 
 - (void) pushOperand:(double)operand;
 - (void) pushVariable:(NSString *)variable;
+- (void) pushOperation:(NSString *) operation;
 - (double) performOperation:(NSString *)operation;
-- (double) performOperation:(NSString *)operation usingVariableValues:(NSDictionary *)variableValues;
 - (void) clearOperands;
 
 @property (readonly) id program;

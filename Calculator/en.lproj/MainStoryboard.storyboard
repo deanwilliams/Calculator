@@ -477,14 +477,23 @@
                     <connections>
                         <outlet property="display" destination="y1Y-bf-Stp" id="SjG-Nv-JOD"/>
                         <outlet property="history" destination="iIH-UT-Q1b" id="dQ7-55-6Yd"/>
-                        <outlet property="testVariableValues" destination="ozh-yn-yks" id="IJR-EX-aSz"/>
-                        <outlet property="variableValues" destination="ozh-yn-yks" id="AYF-xf-vO1"/>
+                        <outlet property="variableDisplay" destination="ozh-yn-yks" id="zfv-5U-l4Z"/>
                     </connections>
                 </viewController>
             </objects>
-            <point key="canvasLocation" x="-35" y="130"/>
+            <point key="canvasLocation" x="-915" y="-651"/>
         </scene>
     </scenes>
+    <classes>
+        <class className="CalculatorViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CalculatorViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="display" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="history" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="variableDisplay" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

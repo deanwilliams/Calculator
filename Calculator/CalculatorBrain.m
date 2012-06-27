@@ -50,6 +50,7 @@
 - (void) pushVariable:(NSString *)variable
 {
     [self.programStack addObject:variable];
+    NSLog(@"Variable %@ now on stack", variable);
 }
 
 /*!
@@ -67,14 +68,11 @@
 {
     [self.programStack addObject:operation];
     return [CalculatorBrain runProgram:self.program];
-    
 }
 
-- (double) performOperation:(NSString *)operation usingVariableValues:(NSDictionary *)variableValues
+- (void) pushOperation:(NSString *) operation
 {
     [self.programStack addObject:operation];
-    return [CalculatorBrain runProgram:self.program usingVariableValues:variableValues];
-    
 }
 
 + (NSString *) descriptionOfProgram:(id)program
@@ -177,7 +175,7 @@
     }
 }
 
-+ (double) popOperandOffStack:(NSMutableArray *) stack usingVariableValues:(NSDictionary *) variableValues
++ (double) popOperandOffStack:(NSMutableArray *) stack
 {
     double result = 0;
     
@@ -190,44 +188,38 @@
         NSString *operation = topOfStack;
         if ([operation isEqualToString:@"+"]) {
             // Sum
-            result = [self popOperandOffStack:stack usingVariableValues:variableValues] + [self popOperandOffStack:stack usingVariableValues:variableValues];
+            result = [self popOperandOffStack:stack] + [self popOperandOffStack:stack];
         } else if ([operation isEqualToString:@"-"]) {
             // Subtract
-            double subtrahend = [self popOperandOffStack:stack usingVariableValues:variableValues];
-            result = [self popOperandOffStack:stack usingVariableValues:variableValues] - subtrahend;
+            double subtrahend = [self popOperandOffStack:stack];
+            result = [self popOperandOffStack:stack] - subtrahend;
         } else if ([operation isEqualToString:@"*"]) {
             // Multiply
-            result = [self popOperandOffStack:stack usingVariableValues:variableValues] * [self popOperandOffStack:stack usingVariableValues:variableValues];
+            result = [self popOperandOffStack:stack] * [self popOperandOffStack:stack];
         } else if ([operation isEqualToString:@"/"]) {
             // Divide
-            double divisor = [self popOperandOffStack:stack usingVariableValues:variableValues];
+            double divisor = [self popOperandOffStack:stack];
             if (divisor == 0) {
                 result = 0;
             } else {
-                if (divisor) result = [self popOperandOffStack:stack usingVariableValues:variableValues] / divisor;
+                if (divisor) result = [self popOperandOffStack:stack] / divisor;
             }
         } else if ([operation isEqualToString:@"sin"]) {
             // Sin
-            result = sin([self popOperandOffStack:stack usingVariableValues:variableValues]);
+            result = sin([self popOperandOffStack:stack]);
         } else if ([operation isEqualToString:@"cos"]) {
             // Cos
-            result = cos([self popOperandOffStack:stack usingVariableValues:variableValues] );
+            result = cos([self popOperandOffStack:stack] );
         } else if ([operation isEqualToString:@"sqrt"]) {
             // Square Root
-            result = sqrt([self popOperandOffStack:stack usingVariableValues:variableValues]);
+            result = sqrt([self popOperandOffStack:stack]);
         } else if ([operation isEqualToString:@"π"]) {
             // Pi
             result = M_PI;
         } else if ([operation isEqualToString:@"+ / -"]) {
             // Negate the value
-            result = [self popOperandOffStack:stack usingVariableValues:variableValues] * -1;
-        } else {
-            // Variable value
-            NSNumber *variableValue = [variableValues objectForKey:operation];
-            if (!variableValue) variableValue = [NSNumber numberWithDouble:0];
-            [stack addObject:variableValue];
-            result = [self popOperandOffStack:stack usingVariableValues:variableValues];
-        }
+            result = [self popOperandOffStack:stack] * -1;
+        } 
     }
     
     return result;
@@ -235,7 +227,7 @@
 
 + (double) runProgram:(id)program
 {
-    return [self popOperandOffStack:program usingVariableValues:nil];
+    return [self runProgram:program usingVariableValues:nil];
 }
 
 + (double) runProgram:(id)program usingVariableValues:(NSDictionary *) variableValues
@@ -244,7 +236,25 @@
     if ([program isKindOfClass:[NSArray class]]) {
         stack = [program mutableCopy];
     }
-    return [self popOperandOffStack:stack usingVariableValues:variableValues];
+    // For each item in the program
+    for (int i=0; i < [stack count]; i++) {
+        id obj = [stack objectAtIndex:i]; 
+        
+        // See whether we think the item is a variable
+        if ([obj isKindOfClass:[NSString class]] && [[self class] isVariable:obj]) {
+            if ([variableValues isKindOfClass:[NSDictionary class]]) {
+                NSLog(@"Variables Values is a dictionary");
+            }
+            id value = [variableValues objectForKey:obj];         
+            // If value is not an instance of NSNumber, set it to zero
+            if (![value isKindOfClass:[NSNumber class]]) {
+                value = [NSNumber numberWithInt:0];
+            }        
+            // Replace program variable with value.
+            [stack replaceObjectAtIndex:i withObject:value];
+        }     
+    }  
+    return [self popOperandOffStack:stack];
 }
 
 + (NSSet *) variablesUsedInProgram:(id) program

@@ -21,7 +21,7 @@
 
 @synthesize display = _display;
 @synthesize history = _history;
-@synthesize variableValues = _variableValues;
+@synthesize variableDisplay = _variableDisplay;
 @synthesize testVariableValues = _testVariableValues;
 
 @synthesize userIsInTheMiddleOfEnteringANumber = _userIsInTheMiddleOfEnteringANumber;
@@ -39,10 +39,15 @@
     return _brain;
 }
 
-- (void) setTestVariableValues:(NSDictionary *)testVariableValues
+- (NSDictionary *) testVariableValues
 {
-    _testVariableValues = testVariableValues;
-    self.variableValues.text = [self.testVariableValues description];
+    if (!_testVariableValues) {
+		_testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [NSNumber numberWithDouble:0], @"x",
+                               [NSNumber numberWithDouble:4.8], @"y",
+                               [NSNumber numberWithDouble:0], @"foo", nil];
+	}
+	return _testVariableValues;
 }
 
 /*!
@@ -80,8 +85,8 @@
         [self enterPressed];
     }
     [self.brain pushVariable:variable];
-    self.userIsInTheMiddleOfEnteringANumber = NO;
-    self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
+    [self synchronizeView];
+    NSLog(@"Pushing Variable %@", variable);
 }
 
 /*!
@@ -131,10 +136,40 @@
             [self enterPressed];
         }
     }
-    //[self addToHistory:operation isOperation:YES];
-    double result = [self.brain performOperation:operation usingVariableValues:self.testVariableValues];
-    self.display.text = [NSString stringWithFormat:@"%g", result];
+    [self.brain pushOperation:operation];
+    [self synchronizeView];
+}
+
+-(void)synchronizeView {
+    NSLog(@"Synchronising view");
     self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
+    NSLog(@"Description done");
+    
+	// Find the result by running the program passing in the test variable values
+    self.display.text = [NSString stringWithFormat:@"%g", [CalculatorBrain runProgram:[self.brain program] usingVariableValues:self.testVariableValues]];
+    
+    NSString *variableDescription = @"";
+    NSDictionary *variablesUsed = [self programVariableValues];
+    for (NSString *key in [variablesUsed keyEnumerator]) {
+        NSNumber *value = [variablesUsed objectForKey:key];
+        if ([value isEqual:[NSNull null]]) value = [NSNumber numberWithDouble:0];
+        variableDescription = [variableDescription stringByAppendingFormat:@"%@ = %g", key, [value doubleValue]];
+    }
+    self.variableDisplay.text = variableDescription;
+    
+	// And the user isn't in the middle of entering a number
+	self.userIsInTheMiddleOfEnteringANumber = NO;
+}
+
+- (NSDictionary *)programVariableValues {   
+    
+	// Find the variables in the current program in the brain as an array
+	NSArray *variableArray = 
+	[[CalculatorBrain variablesUsedInProgram:self.brain.program] allObjects];
+    
+	// Return a description of a dictionary which contains keys and values for the keys 
+	// that are in the variable array
+	return [self.testVariableValues dictionaryWithValuesForKeys:variableArray];
 }
 
 /*!
@@ -147,9 +182,7 @@
 - (IBAction)enterPressed 
 {
     [self.brain pushOperand:[self.display.text doubleValue]];
-    self.userIsInTheMiddleOfEnteringANumber = NO;
-    //[self addToHistory:self.display.text isOperation:NO];
-    self.history.text = [CalculatorBrain descriptionOfProgram:[self.brain program]];
+    [self synchronizeView];
 }
 
 /*!
@@ -161,9 +194,8 @@
  */
 - (IBAction)clear:(UIButton *)sender 
 {
-    self.display.text = @"0";
-    self.history.text = @"";
     [self.brain clearOperands];
+    [self synchronizeView];	
 }
 
 /*!
@@ -187,15 +219,18 @@
 
 - (IBAction)updateVariableValues:(UIButton *)sender {
     NSString *text = [sender currentTitle];
-    NSDictionary *variableValues;
     if ([text isEqualToString:@"Test 1"]) {
-        variableValues = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithDouble:5], @"x", [NSNumber numberWithDouble:4.8], @"y", [NSNumber numberWithDouble:0], @"foo", nil];
+        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [NSNumber numberWithDouble:-4], @"x",
+                                   [NSNumber numberWithDouble:3], @"y",
+                                   [NSNumber numberWithDouble:4], @"foo", nil];
     } else if ([text isEqualToString:@"Test 2"]) {
-        variableValues = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithDouble:2], @"x", [NSNumber numberWithDouble:0], @"y", [NSNumber numberWithDouble:10], @"foo", nil];
+        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [NSNumber numberWithDouble:-5], @"x", nil];
     } else if ([text isEqualToString:@"Test 3"]) {
-        // Do nothing
+        self.testVariableValues = nil;  
     }
-    self.testVariableValues = variableValues;
+    [self synchronizeView];
 }
 
 - (void)viewDidUnload {
